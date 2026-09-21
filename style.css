@@ -312,6 +312,7 @@ header{
 .delivery-btn.active{background:var(--secondary-color);color:#fff}
 
 .form-group{margin-bottom:1rem}
+.form-group-opcional{font-weight:400;color:#8a8f98;font-size:.82em}
 .form-group label{display:block;margin-bottom:.45rem;font-weight:700;font-size:.9rem}
 .form-group input,.form-group select,.form-group textarea{
   width:100%;padding:.75rem;border:1px solid var(--border-color);border-radius:.6rem;font-size:1rem;font-family:inherit;

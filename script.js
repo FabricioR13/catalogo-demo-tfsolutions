@@ -449,7 +449,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
                 return validarCampos(["pickup-date", "pickup-time"]);
             }
-            return validarCampos(["delivery-cep", "delivery-address"]);
+            return validarCampos(["delivery-address", "delivery-numero"]);
         }
         if (etapaAtual === 4) {
             return validarCampos(["identificacao-nome", "identificacao-telefone"]);
@@ -474,10 +474,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (tipoEntrega === "delivery") {
             const cep = document.getElementById("delivery-cep").value;
             const endereco = document.getElementById("delivery-address").value;
+            const numero = document.getElementById("delivery-numero").value;
             resumoEntregaBloco.innerHTML = `
                 <h5>Entrega (Moto)</h5>
-                <p>CEP: ${cep}</p>
-                <p>Endereço: ${endereco}</p>`;
+                <p>Endereço: ${endereco}, nº ${numero}</p>
+                ${cep ? `<p>CEP: ${cep}</p>` : ""}`;
         } else {
             const dataInput = document.getElementById("pickup-date").value;
             const hora = document.getElementById("pickup-time").value;
@@ -1012,7 +1013,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const fieldsToValidate = tipoEntrega === "delivery"
-            ? ["delivery-cep", "delivery-address", "identificacao-nome", "identificacao-telefone"]
+            ? ["delivery-address", "delivery-numero", "identificacao-nome", "identificacao-telefone"]
             : ["pickup-date", "pickup-time", "identificacao-nome", "identificacao-telefone"];
 
         if (!validarCampos(fieldsToValidate)) return;
@@ -1063,9 +1064,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (tipoEntrega === "delivery") {
             const address = document.getElementById("delivery-address").value;
+            const numero = document.getElementById("delivery-numero").value;
             const cep = document.getElementById("delivery-cep").value;
+            const cepInfo = cep ? `\n*CEP:* ${cep}` : "";
 
-            mensagem += `*Tipo de Pedido:* Entrega (Moto)\n\n*Nome:* ${nome}\n*Telefone:* ${telefone}\n*CEP:* ${cep}\n*Endereço:* ${address}\n\n${paymentInfo}`;
+            mensagem += `*Tipo de Pedido:* Entrega (Moto)\n\n*Nome:* ${nome}\n*Telefone:* ${telefone}\n*Endereço:* ${address}, nº ${numero}${cepInfo}\n\n${paymentInfo}`;
         } else {
             const dataInput = document.getElementById("pickup-date").value;
             const hora = document.getElementById("pickup-time").value;
