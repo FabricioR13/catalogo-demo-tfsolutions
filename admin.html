@@ -224,6 +224,9 @@
     <button class="btn btn-primary" onclick="fazerLogin()">
       <i class="fa-solid fa-right-to-bracket"></i> Entrar
     </button>
+    <p style="margin-top:14px;font-size:.75rem;color:var(--muted);text-align:center">
+      Ambiente de demonstração — digite qualquer e-mail e senha para entrar.
+    </p>
   </div>
 </div>
 
@@ -231,6 +234,10 @@
   <div class="topbar">
     <div class="topbar-brand" id="topbar-brand-nome">Admin</div>
     <div class="topbar-right">
+      <span style="font-size:.72rem;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:3px 10px" title="Nenhuma alteração feita aqui é salva de verdade — recarregar a página reinicia tudo.">
+        <i class="fa-solid fa-flask" aria-hidden="true"></i> Demonstração
+      </span>
+      <select id="topbar-nicho-select" style="font-size:.8rem;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px" title="Trocar o nicho de exemplo"></select>
       <span style="font-size:.8rem;color:var(--muted)" id="topbar-count"></span>
       <button class="logout-btn" onclick="fazerLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
     </div>
@@ -779,53 +786,182 @@
 
 <div id="toast"></div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="nichos.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" onerror="console.warn('Cropper.js não carregou — o recorte manual fica indisponível e o sistema usa o recorte automático central como alternativa.')"></script>
 
 <script>
-// ATENÇÃO: config removida de propósito nesta cópia de demonstração — este admin
-// pertencia a um projeto Firebase real de uma cliente (PG Semi Joias) e não pode
-// apontar pra lá. Antes de usar este painel ao vivo na demo, crie um projeto
-// Firebase isolado só pra essa demonstração e cole as credenciais dele aqui.
-const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+// ─────────────────────────────────────────────────────────────────────────────
+// PAINEL ADMIN — MODO DEMONSTRAÇÃO (SEM BANCO DE DADOS DE VERDADE)
+// ─────────────────────────────────────────────────────────────────────────────
+// Este admin não se conecta a nenhum Firebase. Em vez disso, ele simula um banco
+// de dados inteiro na memória do navegador, pré-carregado com os produtos do
+// nicho escolhido (o mesmo arquivo nichos.js usado pela vitrine). Toda a lógica
+// de produtos/categorias/cupons/PDV/relatório abaixo continua chamando db.collection(...)
+// exatamente como chamaria contra o Firestore de verdade — só o que está por trás
+// da variável `db` é diferente. Isso permite que qualquer cliente mexa à vontade
+// no painel (editar produto, lançar venda no PDV, mudar configurações) sem risco
+// nenhum: nada é gravado de fato, e um simples F5 devolve tudo ao ponto de partida.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const params = new URLSearchParams(window.location.search);
+const nichoParam = params.get("nicho");
+const NICHO_ATUAL = (nichoParam && NICHOS[nichoParam]) ? nichoParam : NICHOS_ORDEM[0];
+const nichoData = NICHOS[NICHO_ATUAL];
+
+const CONFIG_PADRAO = {
+  nomeLoja: "Loja Demonstrativa",
+  whatsapp: TF_WHATSAPP_DEMO,
+  retiradaDias: [0,1,2,3,4,5,6],
+  retiradaHoraInicio: "08:00",
+  retiradaHoraFim: "18:00",
+  retiradaIntervalo: 60,
+  retiradaPausaInicio: "",
+  retiradaPausaFim: "",
+  bannerUrl: "",
+  corPrimaria: "#B08D57",
+  corSecundaria: "#1C1B1F",
+  corDestaque: "#D4AF37",
+  heroTag: "Coleção Exclusiva",
+  heroTitulo: "Peças feitas para brilhar",
+  heroSubtitulo: "Joias selecionadas com carinho para todos os momentos",
+  heroCorFundo: "#0B1220",
+  heroCorFundoFim: "",
+  logoUrl: "",
+  entregaDisponivel: true,
+  retiradaDisponivel: true,
+  sobreNome: "",
+  sobreTexto: "",
+  sobreFoto: "",
+  sobreLink: ""
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+function criarTimestampAgora() {
+  const agora = new Date();
+  return { __mockTimestamp: true, toDate: () => agora, valueOf: () => agora.getTime() };
+}
+function _valorComparavel(v) {
+  if (v && typeof v.toDate === "function") return v.toDate().getTime();
+  if (v instanceof Date) return v.getTime();
+  return v;
+}
+function _autoId() {
+  return "auto_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
 
-// ── LOGIN ──────────────────────────────────────────────────────────────────
+function criarBancoSimulado() {
+  const colecoes = { produtos: new Map(), categorias: new Map(), cupons: new Map(), vendas: new Map(), configuracoes: new Map() };
+
+  (nichoData.produtos || []).forEach(p => colecoes.produtos.set(String(p.id), { ...p }));
+  (nichoData.categorias || []).filter(c => c.id !== "all").forEach(c => colecoes.categorias.set(c.id, { ...c }));
+  (nichoData.cupons || []).forEach((c, i) => colecoes.cupons.set(String(i), { ...c }));
+  colecoes.configuracoes.set("geral", { ...CONFIG_PADRAO, ...(nichoData.config || {}) });
+
+  function docRef(colecaoNome, id) {
+    return {
+      id,
+      collectionName: colecaoNome,
+      async get() {
+        const dados = colecoes[colecaoNome].get(id);
+        return { exists: dados !== undefined, id, data: () => (dados ? { ...dados } : undefined) };
+      },
+      async set(dados) { colecoes[colecaoNome].set(id, { ...dados }); },
+      async update(dados) { colecoes[colecaoNome].set(id, { ...(colecoes[colecaoNome].get(id) || {}), ...dados }); },
+      async delete() { colecoes[colecaoNome].delete(id); },
+    };
+  }
+
+  function query(colecaoNome, filtros, ordem) {
+    return {
+      where(campo, op, valor) { return query(colecaoNome, [...filtros, { campo, op, valor }], ordem); },
+      orderBy(campo, direcao = "asc") { return query(colecaoNome, filtros, { campo, direcao }); },
+      async get() {
+        let itens = [...colecoes[colecaoNome].entries()].map(([id, dados]) => ({ id, dados }));
+        filtros.forEach(f => {
+          itens = itens.filter(({ dados }) => {
+            const a = _valorComparavel(dados[f.campo]), b = _valorComparavel(f.valor);
+            switch (f.op) {
+              case ">=": return a >= b;
+              case "<=": return a <= b;
+              case ">": return a > b;
+              case "<": return a < b;
+              case "==": return a === b;
+              default: return true;
+            }
+          });
+        });
+        if (ordem) {
+          itens.sort((x, y) => {
+            const a = _valorComparavel(x.dados[ordem.campo]), b = _valorComparavel(y.dados[ordem.campo]);
+            const cmp = a < b ? -1 : a > b ? 1 : 0;
+            return ordem.direcao === "desc" ? -cmp : cmp;
+          });
+        }
+        return { docs: itens.map(({ id, dados }) => ({ id, data: () => ({ ...dados }) })) };
+      },
+    };
+  }
+
+  return {
+    collection(nome) {
+      return {
+        doc(id) { return docRef(nome, id !== undefined ? String(id) : _autoId()); },
+        async add(dados) { const id = _autoId(); colecoes[nome].set(id, { ...dados }); return { id }; },
+        where(campo, op, valor) { return query(nome, [{ campo, op, valor }], null); },
+        orderBy(campo, direcao = "asc") { return query(nome, [], { campo, direcao }); },
+        async get() { return query(nome, [], null).get(); },
+      };
+    },
+    async runTransaction(fn) {
+      const tx = {
+        async get(ref) { return ref.get(); },
+        set(ref, dados) { colecoes[ref.collectionName].set(ref.id, { ...dados }); },
+        update(ref, dados) { colecoes[ref.collectionName].set(ref.id, { ...(colecoes[ref.collectionName].get(ref.id) || {}), ...dados }); },
+      };
+      return fn(tx);
+    },
+  };
+}
+
+let db = criarBancoSimulado();
+
+// ── LOGIN (simulado: qualquer e-mail/senha preenchidos entram) ─────────────
 function fazerLogin() {
   const email = document.getElementById("email-input").value.trim();
   const senha = document.getElementById("senha-input").value;
   const err   = document.getElementById("login-error");
   err.style.display = "none";
-  auth.signInWithEmailAndPassword(email, senha).catch(() => {
-    err.style.display = "block";
-  });
+  if (!email || !senha) { err.textContent = "Preencha e-mail e senha (qualquer valor funciona nesta demonstração)."; err.style.display = "block"; return; }
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  popularSeletorNicho();
+  inicializar();
 }
-function fazerLogout() { auth.signOut(); }
+function fazerLogout() {
+  // Reinicia o "banco" do zero, pra próxima pessoa que abrir a aba começar limpo.
+  db = criarBancoSimulado();
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("email-input").value = "";
+  document.getElementById("senha-input").value = "";
+}
 document.getElementById("senha-input").addEventListener("keydown", e => { if (e.key === "Enter") fazerLogin(); });
 document.getElementById("email-input").addEventListener("keydown", e => { if (e.key === "Enter") fazerLogin(); });
-auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    inicializar();
-  } else {
-    document.getElementById("login-screen").style.display = "flex";
-    document.getElementById("app").style.display = "none";
-  }
-});
+
+function popularSeletorNicho() {
+  const sel = document.getElementById("topbar-nicho-select");
+  if (!sel || sel.options.length) return;
+  sel.innerHTML = NICHOS_ORDEM.map(chave =>
+    `<option value="${chave}" ${chave === NICHO_ATUAL ? "selected" : ""}>${NICHOS[chave].meta.label}</option>`
+  ).join("");
+  sel.addEventListener("change", () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("nicho", sel.value);
+    window.location.href = url.toString();
+  });
+}
+
+document.getElementById("login-screen").style.display = "flex";
+document.getElementById("app").style.display = "none";
 
 // ── ESTADO ────────────────────────────────────────────────────────────────
 let todosProdutos   = [];
@@ -1330,7 +1466,7 @@ async function salvarProduto() {
       const maxId = todosProdutos.length ? Math.max(...todosProdutos.map(p => Number(p.id)||0)) : 0;
       await db.collection("produtos").doc(String(maxId + 1)).set({
         ...dados, id: maxId + 1,
-        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        criadoEm: criarTimestampAgora()
       });
       toast("Produto criado!", "ok");
     }
@@ -1746,7 +1882,7 @@ async function pdvFinalizarVenda() {
     pagamento: pagamentos.map(p => PAG_LABEL[p.forma] || p.forma).join(" + "),
     cliente: cliente || null,
     cupom: pdvCupomAplicado ? pdvCupomAplicado.codigo : null,
-    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    criadoEm: criarTimestampAgora()
   };
 
   try {
@@ -2225,33 +2361,6 @@ function renderRelatorioGraficoPagamento() {
 }
 
 // ── CONFIGURAÇÕES ─────────────────────────────────────────────────────────
-const CONFIG_PADRAO = {
-  nomeLoja: "PG Semi Joias",
-  whatsapp: "558182362638",
-  retiradaDias: [0,1,2,3,4,5,6],
-  retiradaHoraInicio: "08:00",
-  retiradaHoraFim: "18:00",
-  retiradaIntervalo: 60,
-  retiradaPausaInicio: "",
-  retiradaPausaFim: "",
-  bannerUrl: "",
-  corPrimaria: "#B08D57",
-  corSecundaria: "#1C1B1F",
-  corDestaque: "#D4AF37",
-  heroTag: "Coleção Exclusiva",
-  heroTitulo: "Peças feitas para brilhar",
-  heroSubtitulo: "Joias selecionadas com carinho para todos os momentos",
-  heroCorFundo: "#0B1220",
-  heroCorFundoFim: "",
-  logoUrl: "",
-  entregaDisponivel: true,
-  retiradaDisponivel: true,
-  sobreNome: "",
-  sobreTexto: "",
-  sobreFoto: "",
-  sobreLink: ""
-};
-
 function alternarDegradeHero() {
   const ativo = document.getElementById("config-hero-degrade-ativo").checked;
   document.getElementById("config-hero-degrade-area").style.display = ativo ? "block" : "none";
