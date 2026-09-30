@@ -2,7 +2,7 @@
 
 Catálogo online de demonstração, usado pela **TF Solutions** para mostrar a empreendedores de Cachoeirinha/RS (bairros Girassóis e Campo Belo) como funciona uma loja com catálogo, carrinho, pedido direto pelo WhatsApp e um painel administrativo completo.
 
-Ao abrir o site, o visitante escolhe o tipo de negócio mais parecido com o dele (hamburgueria, galeteria, doces e salgados, semijoias, roupas, lingerie, sex shop, açaí ou crepe) e vê a loja funcionando com produtos de exemplo daquele nicho — a maioria com fotos reais de categoria; lingerie e sex shop usam um cartão discreto sem foto, por sensibilidade. Um pedido de teste feito na demo cai direto no WhatsApp da TF Solutions.
+Ao abrir o site, o visitante escolhe o tipo de negócio mais parecido com o dele (hamburgueria, galeteria, doces e salgados, semijoias, roupas, açaí ou crepe) e vê a loja funcionando com produtos de exemplo daquele nicho, com fotos reais de categoria. Um pedido de teste feito na demo cai direto no WhatsApp da TF Solutions.
 
 ## Arquivos
 

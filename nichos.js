@@ -6,12 +6,9 @@
 // a loja carrega um destes "nichos" prontos, escolhido pelo visitante na tela
 // inicial. Nada aqui é gravado em nenhum banco de dados — é só front-end.
 //
-// A maioria dos nichos usa fotos reais (Unsplash, licença livre), uma por
-// categoria de produto. Os nichos "lingerie" e "sex shop" são exceção:
-// mantêm o cartão colorido com o nome do produto (placehold.co) em vez de
-// fotografia, por uma questão de discrição/sensibilidade a pedido do
-// cliente. As fotos das "sobre a loja" (dona do negócio) também usam esse
-// cartão colorido em todos os nichos, já que não há foto real de pessoa.
+// Os nichos usam fotos reais (Unsplash, licença livre), uma por categoria
+// de produto. As fotos das "sobre a loja" (dona do negócio) usam um cartão
+// colorido (placehold.co) em todos os nichos, já que não há foto real de pessoa.
 //
 // O WhatsApp de todos os nichos aponta pro número da TF Solutions: qualquer
 // "pedido de teste" feito na demo cai direto numa conversa de verdade.
@@ -24,9 +21,7 @@ const TF_WHATSAPP_DEMO = "5551982165186";
 const swatch = (corHex, nome) =>
     `https://placehold.co/500x500/F3F1EC/${corHex.replace("#", "")}?text=${encodeURIComponent(nome)}`;
 
-// Foto real de categoria (Unsplash, licença livre) — usada nos nichos onde
-// fotos de produto fazem sentido. Lingerie e sex shop mantêm o swatch()
-// acima por uma questão de discrição/sensibilidade, a pedido do cliente.
+// Foto real de categoria (Unsplash, licença livre).
 const foto = (unsplashId) =>
     `https://images.unsplash.com/photo-${unsplashId}?w=600&h=600&fit=crop&q=80&auto=format`;
 
@@ -219,75 +214,7 @@ NICHOS.roupas = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 6. LINGERIE
-// ═══════════════════════════════════════════════════════════════════════════
-NICHOS.lingerie = {
-    meta: { label: "Lingerie", icone: "fa-heart" },
-    config: {
-        nomeLoja: "Charme Íntimo",
-        whatsapp: TF_WHATSAPP_DEMO,
-        corPrimaria: "#9C4B57", corSecundaria: "#2B1B1F", corDestaque: "#E8C4C4",
-        heroTag: "Conforto e delicadeza",
-        heroTitulo: "Peças íntimas com cuidado nos detalhes",
-        heroSubtitulo: "Tamanhos variados, atendimento discreto e sem julgamento",
-        heroCorFundo: "#2B1B1F", heroCorFundoFim: "#9C4B57",
-        entregaDisponivel: true, retiradaDisponivel: true,
-        retiradaDias: [1, 2, 3, 4, 5, 6], retiradaHoraInicio: "10:00", retiradaHoraFim: "19:00", retiradaIntervalo: 30,
-        sobreNome: "", sobreTexto: "", sobreFoto: "", sobreLink: "",
-    },
-    categorias: [
-        { id: "sutias", nome: "Sutiãs", icone: "fa-heart" },
-        { id: "calcinhas", nome: "Calcinhas", icone: "fa-heart" },
-        { id: "conjuntos", nome: "Conjuntos", icone: "fa-gift" },
-        { id: "pijamas", nome: "Pijamas", icone: "fa-moon" },
-    ],
-    produtos: [
-        { id: 1, nome: "Sutiã Renda Clássico", categoria: "sutias", preco: 49.90, tamanhos: ["P", "M", "G"], descricao: "Bojo com renda delicada, alça ajustável.", imagem: swatch("#9C4B57", "Sutia Renda"), ativo: true, destaque: true, disponibilidade: "pronta-entrega" },
-        { id: 2, nome: "Calcinha Algodão", categoria: "calcinhas", preco: 19.90, tamanhos: ["P", "M", "G", "GG"], descricao: "Modelo básico, tecido macio para o dia a dia.", imagem: swatch("#9C4B57", "Calcinha Basica"), ativo: true, disponibilidade: "pronta-entrega" },
-        { id: 3, nome: "Conjunto Renda Delicada", categoria: "conjuntos", preco: 89.90, tamanhos: ["P", "M", "G"], descricao: "Sutiã e calcinha combinando, embalagem para presente.", imagem: swatch("#9C4B57", "Conjunto Renda"), ativo: true, destaque: true, disponibilidade: "pronta-entrega" },
-        { id: 4, nome: "Pijama Alcinha", categoria: "pijamas", preco: 59.90, tamanhos: ["P", "M", "G"], descricao: "Tecido leve, conjunto blusa e short.", imagem: swatch("#9C4B57", "Pijama Alcinha"), ativo: true, disponibilidade: "pronta-entrega" },
-        { id: 5, nome: "Sutiã Sem Costura", categoria: "sutias", preco: 44.90, tamanhos: ["P", "M", "G"], descricao: "Modelagem lisa, sem marcas na roupa.", imagem: swatch("#9C4B57", "Sutia Sem Costura"), ativo: true, disponibilidade: "pronta-entrega" },
-        { id: 6, nome: "Calcinha Renda", categoria: "calcinhas", preco: 24.90, tamanhos: ["P", "M", "G", "GG"], descricao: "Detalhe em renda, tecido confortável.", imagem: swatch("#9C4B57", "Calcinha Renda"), ativo: true, disponibilidade: "pronta-entrega" },
-        { id: 7, nome: "Body Renda", categoria: "conjuntos", preco: 69.90, tamanhos: ["P", "M", "G"], descricao: "Body com detalhe em renda, fecho na base.", imagem: swatch("#9C4B57", "Body Renda"), ativo: true, disponibilidade: "pronta-entrega" },
-    ],
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 7. SEX SHOP (tratamento discreto: sem fotografia, nomes genéricos de catálogo)
-// ═══════════════════════════════════════════════════════════════════════════
-NICHOS.sexshop = {
-    meta: { label: "Sex Shop", icone: "fa-spa" },
-    config: {
-        nomeLoja: "Prazer & Cia",
-        whatsapp: TF_WHATSAPP_DEMO,
-        corPrimaria: "#4B2E63", corSecundaria: "#1A1A1A", corDestaque: "#C89B3C",
-        heroTag: "Atendimento discreto",
-        heroTitulo: "Bem-estar e cuidado para o casal",
-        heroSubtitulo: "Entrega discreta, sem identificação na embalagem",
-        heroCorFundo: "#1A1A1A", heroCorFundoFim: "#4B2E63",
-        entregaDisponivel: true, retiradaDisponivel: true,
-        retiradaDias: [1, 2, 3, 4, 5], retiradaHoraInicio: "10:00", retiradaHoraFim: "18:00", retiradaIntervalo: 30,
-        sobreNome: "", sobreTexto: "", sobreFoto: "", sobreLink: "",
-    },
-    categorias: [
-        { id: "bem-estar", nome: "Bem-estar", icone: "fa-spa" },
-        { id: "presentes", nome: "Presentes", icone: "fa-gift" },
-        { id: "aromaticos", nome: "Aromáticos", icone: "fa-fire" },
-        { id: "jogos", nome: "Jogos de Casal", icone: "fa-dice" },
-    ],
-    produtos: [
-        { id: 1, nome: "Óleo de Massagem", categoria: "bem-estar", preco: 39.90, descricao: "Óleo hidratante para massagem relaxante, 100ml.", imagem: swatch("#4B2E63", "Oleo de Massagem"), ativo: true, destaque: true, disponibilidade: "pronta-entrega" },
-        { id: 2, nome: "Gel Íntimo", categoria: "bem-estar", preco: 34.90, descricao: "Gel à base de água, sem perfume, 50ml.", imagem: swatch("#4B2E63", "Gel Intimo"), ativo: true, disponibilidade: "pronta-entrega" },
-        { id: 3, nome: "Kit Casal Surpresa", categoria: "presentes", preco: 89.90, descricao: "Caixa fechada com itens variados, embalagem para presente.", imagem: swatch("#C89B3C", "Kit Casal"), ativo: true, destaque: true, disponibilidade: "pronta-entrega" },
-        { id: 4, nome: "Vela Aromática", categoria: "aromaticos", preco: 29.90, descricao: "Vela de massagem com óleo aromático, queima lenta.", imagem: swatch("#C89B3C", "Vela Aromatica"), ativo: true, disponibilidade: "pronta-entrega" },
-        { id: 5, nome: "Jogo de Casal", categoria: "jogos", preco: 44.90, descricao: "Jogo de cartas para casais, embalagem discreta.", imagem: swatch("#1A1A1A", "Jogo de Casal"), ativo: true, disponibilidade: "pronta-entrega" },
-        { id: 6, nome: "Loção Hidratante Íntima", categoria: "bem-estar", preco: 29.90, descricao: "Fórmula suave, sem perfume, 100ml.", imagem: swatch("#4B2E63", "Locao Hidratante"), ativo: true, disponibilidade: "pronta-entrega" },
-        { id: 7, nome: "Kit Boas-Vindas", categoria: "presentes", preco: 69.90, descricao: "Seleção de itens de bem-estar, embalagem para presente.", imagem: swatch("#C89B3C", "Kit Boas Vindas"), ativo: true, disponibilidade: "pronta-entrega" },
-    ],
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 8. AÇAÍ
+// 6. AÇAÍ
 // ═══════════════════════════════════════════════════════════════════════════
 NICHOS.acai = {
     meta: { label: "Açaí", icone: "fa-bowl-food" },
@@ -322,7 +249,7 @@ NICHOS.acai = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 9. CREPE
+// 7. CREPE
 // ═══════════════════════════════════════════════════════════════════════════
 NICHOS.crepe = {
     meta: { label: "Crepe", icone: "fa-utensils" },
@@ -358,5 +285,5 @@ NICHOS.crepe = {
 // Ordem de exibição no seletor de nicho
 const NICHOS_ORDEM = [
     "hamburgueria", "galeteria", "doceria", "semijoias",
-    "roupas", "lingerie", "sexshop", "acai", "crepe",
+    "roupas", "acai", "crepe",
 ];
