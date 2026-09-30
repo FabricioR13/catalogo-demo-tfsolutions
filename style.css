@@ -541,3 +541,16 @@ header.header--banner > * {
   .nicho-selector-grid{grid-template-columns:repeat(2,1fr)}
   .nicho-card{padding:1.1rem .6rem}
 }
+
+/* Faixa da demonstração (acima do cabeçalho) */
+.demo-bar{
+  display:flex;align-items:center;justify-content:center;gap:.9rem;flex-wrap:wrap;
+  background:#111827;color:#e5e7eb;font-size:.8rem;padding:.45rem 1rem;text-align:center
+}
+.demo-bar-texto{display:flex;align-items:center;gap:.4rem;opacity:.85}
+.demo-bar-trocar{
+  display:inline-flex;align-items:center;gap:.4rem;color:#fff;font-weight:700;text-decoration:none;
+  border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:.25rem .8rem;transition:background .2s
+}
+.demo-bar-trocar:hover,.demo-bar-trocar:focus-visible{background:rgba(255,255,255,.12)}
+@media(max-width:520px){.demo-bar-texto{display:none}}
