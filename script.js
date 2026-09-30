@@ -147,8 +147,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // --- CARREGAR CONFIGURAÇÕES DA LOJA DO NICHO ESCOLHIDO ---
     const CONFIG_PADRAO = {
-        nomeLoja: "PG Semi Joias",
-        whatsapp: "558182362638",
+        nomeLoja: "Loja Demonstrativa",
+        whatsapp: TF_WHATSAPP_DEMO,
         retiradaDias: [0, 1, 2, 3, 4, 5, 6],
         retiradaHoraInicio: "08:00",
         retiradaHoraFim: "18:00",
@@ -159,9 +159,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         corPrimaria: "#B08D57",
         corSecundaria: "#1C1B1F",
         corDestaque: "#D4AF37",
-        heroTag: "Coleção Exclusiva",
-        heroTitulo: "Peças feitas para brilhar",
-        heroSubtitulo: "Joias selecionadas com carinho para todos os momentos",
+        heroTag: "Catálogo demonstrativo",
+        heroTitulo: "Sua loja online, pronta para vender",
+        heroSubtitulo: "Escolha os produtos e finalize o pedido pelo WhatsApp",
         heroCorFundo: "#0B1220",
         heroCorFundoFim: "",
         logoUrl: "",
@@ -692,6 +692,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     guiaClose.addEventListener("click", fecharGuia);
     guiaOverlay.addEventListener("click", fecharGuia);
     guiaTamanhoLink.addEventListener("click", abrirGuia);
+    // O guia é de tamanho de anel: só faz sentido no nicho de semijoias.
+    guiaTamanhoLink.hidden = nichoEscolhido !== "semijoias";
 
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
